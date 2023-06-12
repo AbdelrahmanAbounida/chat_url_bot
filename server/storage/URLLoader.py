@@ -1,22 +1,21 @@
 """
 Load data from url
 """
-
 from dotenv import load_dotenv
-import os 
 from typing import List 
 import requests 
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 from langchain.document_loaders import UnstructuredURLLoader
 from langchain.document_loaders import PlaywrightURLLoader
-
 from playwright.sync_api import sync_playwright
 from unstructured.partition.html import partition_html
+from langchain.schema import Document
 
 load_dotenv()
 
 class URLLoader:
+
     def __init__(self,URLS:List[str]) -> None: 
         self.URLS = URLS
 
@@ -37,7 +36,8 @@ class URLLoader:
             except Exception as e:
                 print("************************************")
                 print("Failed to get xmlsitemap conetnt")
-                print(f"Error: {e}")
+                # print(f"Error: {e}")
+                print("Lets try regular scraping")
                 print("************************************")
         return [""]
         
@@ -53,8 +53,6 @@ class URLLoader:
             if len(all_urls) <= 1: 
                 reqs = requests.get(url)
                 soup = BeautifulSoup(reqs.text, 'html.parser')
-
-                print(reqs.text)
                 all_urls = []
 
                 for link in soup.find_all('a'):
@@ -63,10 +61,14 @@ class URLLoader:
             all_pages += all_urls
         
         return all_pages
-    
 
-    def manual_scraping(self,urls):
-        """Test Method to try payright"""
+    def load_urls_data(self,urls:List[str]) -> List[Document]:
+        """Load text from url"""
+        loader = UnstructuredURLLoader(urls=urls)
+        return loader.load()
+
+    def manual_scraping(self,urls) -> List[str]:
+        """Test Method to try playright"""
             
         docs = list()
         with sync_playwright() as p:
@@ -95,14 +97,3 @@ class URLLoader:
 
 
 
-if __name__ == '__main__':
-    urls = ["https://parag-ritik.dkvdexjra0dxm.amplifyapp.com/"]
-
-    url_loader = URLLoader(URLS=urls)
-
-    # nest_urls = url_loader.get_webpage_urls()
-
-    loader = PlaywrightURLLoader(urls=urls) # , remove_selectors=["header", "footer"]
-    data = loader.load()
-
-    print(data)

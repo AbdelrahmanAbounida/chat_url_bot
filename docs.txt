@@ -1,2 +1,0 @@
-# installation
-pip install openai langchain  pinecone-client  tiktoken   unstructured tabulate

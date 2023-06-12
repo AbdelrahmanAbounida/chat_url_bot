@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  spirit-app: 
+    build: . 
+    command: gunicorn -b 0.0.0.0:8000 --reload --access-logfile - "api:create_app()"
+    environment: 
+      - FLASK_DEBUG= develpment
+      - FLASK_APP= application.py
+    volumes:
+      - .:/api
+    ports:
+      - '8000:8000'
